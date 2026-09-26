@@ -1134,10 +1134,11 @@ MÚSICA
 id="weddingMusic"
 autoplay
 loop
+playsinline
 preload="auto">
 
 <source
-src="musica.mp3"
+src="./musica.mp3"
 type="audio/mpeg">
 
 </audio>
@@ -1346,7 +1347,6 @@ COM AMOR, EMMYLY & ANAKI
 CONTAGEM REGRESSIVA
 ========================= */
 
-
 const weddingDate =
 new Date(
 "2026-10-20T21:00:00"
@@ -1454,59 +1454,118 @@ MÚSICA
 const music =
 document.getElementById("weddingMusic");
 
-
 music.volume = 0.35;
 
 
-/* tenta tocar automaticamente */
+/*
+TENTA INICIAR AUTOMATICAMENTE
+AO ABRIR O CONVITE
+*/
+
+function playMusic(){
+
+    music.play()
+    .then(function(){
+
+        console.log("Música iniciada.");
+
+    })
+    .catch(function(){
+
+        console.log(
+            "Autoplay bloqueado pelo navegador."
+        );
+
+    });
+
+}
+
+
+/*
+PRIMEIRA TENTATIVA
+*/
 
 window.addEventListener(
 "load",
 function(){
 
-music.play().catch(function(){
+    playMusic();
+
+});
+
 
 /*
-Alguns navegadores bloqueiam
-autoplay com áudio.
-
-Nesse caso, o primeiro toque
-na tela inicia a música.
+SE O NAVEGADOR BLOQUEAR,
+QUALQUER TOQUE OU CLIQUE
+NA TELA INICIA A MÚSICA.
 */
 
-function startMusic(){
+function startMusicAfterInteraction(){
 
-music.play().catch(function(){});
+    if(music.paused){
 
-document.removeEventListener(
-"touchstart",
-startMusic
-);
+        music.play()
+        .catch(function(){
 
-document.removeEventListener(
-"click",
-startMusic
-);
+            console.log(
+                "Não foi possível iniciar a música."
+            );
+
+        });
+
+    }
 
 }
 
 
+/*
+TOQUE NO CELULAR
+*/
+
 document.addEventListener(
 "touchstart",
-startMusic,
-{once:true}
+startMusicAfterInteraction,
+{
+    once:true,
+    passive:true
+}
 );
 
+
+/*
+CLIQUE NO COMPUTADOR
+*/
 
 document.addEventListener(
 "click",
-startMusic,
-{once:true}
+startMusicAfterInteraction,
+{
+    once:true
+}
 );
 
-});
+
+/*
+TAMBÉM TENTA NOVAMENTE QUANDO
+A PÁGINA FICA VISÍVEL
+*/
+
+document.addEventListener(
+"visibilitychange",
+function(){
+
+    if(
+        document.visibilityState === "visible"
+        &&
+        music.paused
+    ){
+
+        playMusic();
+
+    }
 
 });
+
 
 </script>
 
